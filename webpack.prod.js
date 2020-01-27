@@ -25,7 +25,9 @@ module.exports = (env) => {
             grant: [
                 'unsafeWindow'
             ]
-        }
+        },
+        downloadBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.user.js",
+        updateBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.meta.js"
     }));
     const sourceMapOption = 'hidden-source-map';
     return merge(common, {

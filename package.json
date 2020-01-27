@@ -10,7 +10,8 @@
     "build:dev": "webpack --config webpack.dev.js",
     "build:prod": "webpack --config webpack.prod.js",
     "serve": "serve -l 5001 dist/",
-    "release-userscript": "node tools/release-userscript.js"
+    "copy-userscript": "node tools/release-userscript.js",
+    "release-userscript": "npm run build:prod && npm run copy-userscript"
   },
   "author": "",
   "license": "ISC",
