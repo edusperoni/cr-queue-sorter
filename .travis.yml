@@ -1,0 +1,16 @@
+matrix:
+  include:
+    - stage: "Lint"
+      language: node_js
+      node_js: "10"
+      install:
+        - npm install
+      script:
+        - npm run lint
+    - stage: "Build"
+      language: node_js
+      node_js: "10"
+      install:
+        - npm install
+      script:
+        - npm run build:prod
