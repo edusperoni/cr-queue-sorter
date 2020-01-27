@@ -1,4 +1,4 @@
-# CR Queue Sorter
+# CR Queue Sorter [![Build Status](https://travis-ci.com/edusperoni/cr-queue-sorter.svg?branch=master)](https://travis-ci.com/edusperoni/cr-queue-sorter)
 
 This is a simple Crunchyroll queue sorter I made to fix the new abysmal crunchyroll queue.
 
