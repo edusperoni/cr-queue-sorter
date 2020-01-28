@@ -1,20 +1,10 @@
-import { currentWindow } from "./window";
+import { getValidShowConfig, LocalStorageConfig, ShowConfig } from "./config";
 import { Observer } from "./observer";
-import { appendStyle, DomChangeHelper } from "./util";
-import { LocalStorageConfig, getValidShowConfig } from "./config";
 import { TimeoutScheduler } from "./scheduler";
+import { appendStyle, DomChangeHelper } from "./util";
 
 export const prefix = "crqueuesort";
 
-
-interface ShowConfig {
-    order: number;
-    type: "hold" | "current" | "backlog";
-}
-interface AppConfig {
-    shows: { [k: string]: ShowConfig },
-    topItem: number;
-}
 const typeOrder: ("hold" | "current" | "backlog")[] = ["current", "backlog", "hold"];
 
 (() => {
