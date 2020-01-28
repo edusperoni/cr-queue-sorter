@@ -2,22 +2,13 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
-const WebpackUserscript = require('webpack-userscript')
+const WebpackUserscript = require('webpack-userscript');
+const ExtensionReloader = require('webpack-extension-reloader');
 
-module.exports = merge(common, {
-  // entry is where, say, your app starts - it can be called main.ts, index.ts, app.ts, whatever
-  // entry: ['webpack/hot/poll?100'],
-  // This forces webpack not to compile TypeScript for one time, but to stay running, watch for file changes in project directory and re-compile if needed
-  watch: true,
-  externals: [
-    nodeExternals({
-      // whitelist: ['webpack/hot/poll?100'],
-    }),
-  ],
-  mode: 'development',
-  plugins: [
-    // new webpack.HotModuleReplacementPlugin()
-    new WebpackUserscript({
+function getConf(env, name) {
+  const plugins = [];
+  if (env.userscript) {
+    plugins.push(new WebpackUserscript({
       headers: {
         name: 'CR Queue Sorter',
         version: `[version]-build.[buildNo]`,
@@ -31,7 +22,53 @@ module.exports = merge(common, {
         filename: '[basename].proxy.user.js',
         enable: true
       }
-    })
-  ],
-  devtool: 'inline-source-map'
-});
+    }));
+  }
+  if (env.chrome) {
+    plugins.push(
+      new ExtensionReloader({
+        port: 9090, // Which port use to create the server
+        reloadPage: true, // Force the reload of the page also
+        entries: { // The entries used for the content/background scripts or extension pages
+          contentScript: 'content-script',
+          background: 'background',
+          // extensionPage: 'popup',
+        }
+      })
+    );
+  }
+  return merge(common(env), {
+    name,
+    watch: true,
+    externals: [
+      nodeExternals({}),
+    ],
+    mode: 'development',
+    plugins: [
+      ...plugins
+    ],
+    devtool: 'inline-source-map'
+  });
+}
+
+module.exports = (env) => {
+  env = env || {};
+  let {
+    userscript,
+    chrome
+  } = env;
+  env.chrome = false;
+  env.userscript = false;
+  if (!userscript && !chrome) {
+    userscript = chrome = true;
+  }
+
+  const configs = [];
+  if (userscript) {
+    configs.push(getConf({ ...env, userscript: true, subdir: 'userscript' }, 'userscript'));
+  }
+  if (chrome) {
+    configs.push(getConf({ ...env, chrome: true, subdir: 'chrome' }, 'chrome'));
+  }
+  return configs;
+};

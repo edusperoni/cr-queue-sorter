@@ -3,34 +3,36 @@ const common = require('./webpack.common.js');
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
-const WebpackUserscript = require('webpack-userscript')
+const WebpackUserscript = require('webpack-userscript');
 
-module.exports = (env) => {
+function getConf(env, name) {
     const plugins = [];
-    env = env || {};
     if (env.report) {
         plugins.push(new BundleAnalyzerPlugin({
             analyzerMode: "static",
             openAnalyzer: false,
             generateStatsFile: true,
-            reportFilename: path.join(__dirname, 'report', 'report.html'),
-            statsFilename: path.join(__dirname, 'report', 'stats.json'),
+            reportFilename: path.join(__dirname, 'report', name, 'report.html'),
+            statsFilename: path.join(__dirname, 'report', name, 'stats.json'),
         }));
     }
-    plugins.push(new WebpackUserscript({
-        headers: {
-            name: 'CR Queue Sorter',
-            version: `[version]`,
-            match: 'https://www.crunchyroll.com/home/queue',
-            grant: [
-                'unsafeWindow'
-            ]
-        },
-        downloadBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.user.js",
-        updateBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.meta.js"
-    }));
+    if (env.userscript) {
+        plugins.push(new WebpackUserscript({
+            headers: {
+                name: 'CR Queue Sorter',
+                version: `[version]`,
+                match: 'https://www.crunchyroll.com/home/queue',
+                grant: [
+                    'unsafeWindow'
+                ]
+            },
+            downloadBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.user.js",
+            updateBaseUrl: "https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.meta.js"
+        }));
+    }
     const sourceMapOption = 'hidden-source-map';
-    return merge(common, {
+    return merge(common(env), {
+        name,
         watch: false,
         mode: 'production',
         devtool: sourceMapOption,
@@ -57,3 +59,27 @@ module.exports = (env) => {
         }
     });
 }
+
+
+
+module.exports = (env) => {
+    env = env || {};
+    let {
+        userscript,
+        chrome
+    } = env;
+    env.chrome = false;
+    env.userscript = false;
+    if (!userscript && !chrome) {
+        userscript = chrome = true;
+    }
+
+    const configs = [];
+    if (userscript) {
+        configs.push(getConf({ ...env, userscript: true, subdir: 'userscript' }, 'userscript'));
+    }
+    if (chrome) {
+        configs.push(getConf({ ...env, chrome: true, subdir: 'chrome' }, 'chrome'));
+    }
+    return configs;
+};
