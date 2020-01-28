@@ -14,12 +14,19 @@ module.exports = (env) => {
     outpath = path.join(outpath, subdir);
   }
   const entries = {};
+  const plugins = [];
   if (env.userscript) {
     entries.userscript = path.join(__dirname, 'src', 'main.userscript.ts');
   }
   if (env.chrome) {
     entries['content-script'] = path.join(__dirname, 'src', 'main.content.ts');
     entries.background = path.join(__dirname, 'src', 'main.background.ts');
+    plugins.push(new CopyPlugin(
+      [
+        { from: path.join(__dirname, 'src', 'manifest.json') }
+      ],
+      { copyUnmodified: true })
+    );
   }
 
   return {
@@ -38,12 +45,8 @@ module.exports = (env) => {
       extensions: ['.tsx', '.ts', '.js', '.json'],
     },
     plugins: [
+      ...plugins,
       new CleanWebpackPlugin()
-      // new CopyPlugin(
-      //   [
-      //     { from: path.join(__dirname, 'src', 'assets'), to: 'assets' }
-      //   ],
-      //   { copyUnmodified: true })
     ],
     output: {
       path: outpath,

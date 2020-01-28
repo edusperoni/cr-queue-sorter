@@ -18,7 +18,7 @@ function getConf(env, name) {
         ]
       },
       proxyScript: {
-        baseUrl: 'http://127.0.0.1:5001',
+        baseUrl: 'http://127.0.0.1:5001/userscript',
         filename: '[basename].proxy.user.js',
         enable: true
       }

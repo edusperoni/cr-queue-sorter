@@ -27,8 +27,13 @@ export function getValidShowConfig(v: object | null | undefined): ShowConfig {
     return { ...defaultShowConfig(), ...(v || {}) };
 }
 
+export interface ConfigManager {
+    getConfig(): AppConfig,
+    saveConfig(config: AppConfig): void,
+    withConfig(run: (config: AppConfig) => any): void
+}
 
-export abstract class BaseConfigManager {
+export abstract class BaseConfigManager implements ConfigManager {
     abstract getConfig(): AppConfig;
     abstract saveConfig(config: AppConfig): void;
     withConfig(run: (config: AppConfig) => any) {

@@ -1,8 +1,9 @@
 import { currentWindow } from "../window";
+import { Scheduler } from "./common";
 
-export class TimeoutScheduler {
+export class TimeoutScheduler implements Scheduler {
     private timerId: number | undefined;
-    constructor(private timeInMs: number, private cb: ()=> any) { }
+    constructor(private timeInMs: number, public callback?: ()=> any) { }
 
     schedule() {
         if (this.timerId !== undefined) {
@@ -10,7 +11,9 @@ export class TimeoutScheduler {
         }
         this.timerId = currentWindow.setTimeout(() => {
             this.timerId = undefined;
-            this.cb();
+            if(this.callback) {
+                this.callback();
+            }
         }, this.timeInMs);
     };
 }

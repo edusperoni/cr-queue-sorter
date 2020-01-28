@@ -1,0 +1,20 @@
+{
+    "manifest_version": 2,
+  
+    "name": "CR Queue Sorter",
+    "description": "This extension will sort your CR Queue",
+    "version": "1.0",
+    "background": {
+      "scripts": [
+        "background.bundle.js"
+      ]
+    },
+    "content_scripts": [
+        {
+          "matches": [
+            "https://www.crunchyroll.com/home/queue"
+          ],
+          "js": ["content-script.bundle.js"]
+        }
+      ]
+  }
