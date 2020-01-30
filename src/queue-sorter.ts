@@ -24,6 +24,7 @@ export class QueueSorter {
     }
 
     async isConfigDirty() {
+        // TODO: this could be tree-shakeable
         const config = await this.configManager.getConfig();
         return !isConfigEqual(config, this.lastUsedConfig);
     }
