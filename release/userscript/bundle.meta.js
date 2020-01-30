@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        CR Queue Sorter
-// @version     1.0.0
+// @version     1.0.1
 // @match       https://www.crunchyroll.com/home/queue
 // @grant       unsafeWindow
 // @downloadURL https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.user.js
