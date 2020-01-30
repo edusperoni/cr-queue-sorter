@@ -1,12 +1,6 @@
-import { getValidShowConfig, LocalStorageConfig, ShowConfig } from "./config";
-import { Observer } from "./observer";
-import { TimeoutScheduler } from "./scheduler";
-import { appendStyle, DomChangeHelper } from "./util";
+import { LocalStorageConfig } from "./config";
 import { QueueSorter } from "./queue-sorter";
-
-export const prefix = "crqueuesort";
-
-const typeOrder: ("hold" | "current" | "backlog")[] = ["current", "backlog", "hold"];
+import { TimeoutScheduler } from "./scheduler";
 
 (() => {
 

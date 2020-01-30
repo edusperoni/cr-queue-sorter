@@ -1,3 +1,5 @@
+import deepEqual from "fast-deep-equal";
+
 export interface ShowConfig {
     order: number;
     type: "hold" | "current" | "backlog";
@@ -27,18 +29,26 @@ export function getValidShowConfig(v: object | null | undefined): ShowConfig {
     return { ...defaultShowConfig(), ...(v || {}) };
 }
 
+export type WithConfigRun = (config: AppConfig) => void | Promise<void>;
+
 export interface ConfigManager {
-    getConfig(): AppConfig,
-    saveConfig(config: AppConfig): void,
-    withConfig(run: (config: AppConfig) => any): void
+    getConfig(): Promise<AppConfig>;
+    saveConfig(config: AppConfig): Promise<void>;
+    withConfig(run: WithConfigRun): Promise<void>;
 }
 
 export abstract class BaseConfigManager implements ConfigManager {
-    abstract getConfig(): AppConfig;
-    abstract saveConfig(config: AppConfig): void;
-    withConfig(run: (config: AppConfig) => any) {
-        const config = this.getConfig();
-        run(config);
-        this.saveConfig(config);
+    abstract getConfig(): Promise<AppConfig>;
+    abstract saveConfig(config: AppConfig): Promise<void>;
+    async withConfig(run: WithConfigRun) {
+        const config = await this.getConfig();
+        await run(config);
+        await this.saveConfig(config);
     };
+}
+
+
+
+export function isConfigEqual(a?: AppConfig, b?: AppConfig) {
+    return deepEqual(a, b);
 }

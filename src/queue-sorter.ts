@@ -1,4 +1,4 @@
-import { getValidShowConfig, LocalStorageConfig, ShowConfig, BaseConfigManager, ConfigManager } from "./config";
+import { AppConfig, ConfigManager, getValidShowConfig, isConfigEqual, ShowConfig } from "./config";
 import { Observer } from "./observer";
 import { Scheduler } from "./scheduler";
 import { appendStyle, DomChangeHelper } from "./util";
@@ -16,14 +16,25 @@ export class QueueSorter {
     private domChangeHelper = new DomChangeHelper();
     private mutationObserver?: Observer;
     private queueLocation?: HTMLElement;
+    private lastUsedConfig?: AppConfig;
     constructor(options: QueueSorterOptions) {
         this.scheduler = options.scheduler;
         this.scheduler.callback = () => this.sort();
         this.configManager = options.configManager;
     }
 
+    async isConfigDirty() {
+        const config = await this.configManager.getConfig();
+        return !isConfigEqual(config, this.lastUsedConfig);
+    }
+
+    scheduleSort() {
+        this.scheduler.schedule();
+    }
+
     sort() {
         this.configManager.withConfig((queueConfig) => {
+            this.lastUsedConfig = queueConfig;
             const queueItems = this.getQueueItems();
             this.domChangeHelper.startChangingDom();
             queueItems.forEach((v) => {
@@ -68,12 +79,12 @@ export class QueueSorter {
                         break;
                 }
 
-                const createButton = (cls: string, text: string, onclick?: (showConfig: ShowConfig) => void) => {
+                const createButton = (cls: string, text: string, onclick?: (showConfig: ShowConfig, rootConfig: AppConfig) => void) => {
                     this.createButton(container!, cls, text, seriesId, onclick);
                 }
 
                 createButton(`${QueueSorter.PREFIX}-new-episode`, "New Episode!");
-                createButton(`${QueueSorter.PREFIX}-to-top`, "Top", (cfg) => cfg.order = queueConfig.topItem--);
+                createButton(`${QueueSorter.PREFIX}-to-top`, "Top", (cfg, rootConfig) => cfg.order = --rootConfig.topItem);
                 createButton(`${QueueSorter.PREFIX}-on-current`, "Current", (cfg) => cfg.type = "current");
                 createButton(`${QueueSorter.PREFIX}-on-hold`, "Hold", (cfg) => cfg.type = "hold");
                 createButton(`${QueueSorter.PREFIX}-on-backlock`, "Backlog", (cfg) => cfg.type = "backlog");
@@ -143,7 +154,7 @@ export class QueueSorter {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
                     // console.log('A child node has been added or removed.');
-                    this.scheduler.schedule();
+                    this.scheduleSort();
                 }
                 else if (mutation.type === 'attributes') {
                     // console.log('The ' + mutation.attributeName + ' attribute was modified.');
@@ -152,7 +163,7 @@ export class QueueSorter {
         });
         this.mutationObserver.connect();
 
-        this.scheduler.schedule();
+        this.scheduleSort();
 
     }
 
@@ -162,7 +173,7 @@ export class QueueSorter {
         return queueItems;
     }
 
-    private createButton(container: Element, cls: string, text: string, seriesId: string, onclick?: (showConfig: ShowConfig) => void) {
+    private createButton(container: Element, cls: string, text: string, seriesId: string, onclick?: (showConfig: ShowConfig, rootConfig: AppConfig) => void) {
         let el: HTMLAnchorElement | null = container!.querySelector(`.${cls}`);
         if (!el) {
             el = document.createElement('a');
@@ -177,8 +188,8 @@ export class QueueSorter {
                     const showConfig = qconfig.shows;
                     const currentConfig: ShowConfig = getValidShowConfig(showConfig[seriesId]);
                     showConfig[seriesId] = currentConfig;
-                    onclick(currentConfig);
-                    this.scheduler.schedule();
+                    onclick(currentConfig, qconfig);
+                    this.scheduleSort();
                 });
             }
         }

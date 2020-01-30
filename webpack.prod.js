@@ -4,9 +4,14 @@ const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
 const WebpackUserscript = require('webpack-userscript');
+const webpack = require("webpack");
 
 function getConf(env, name) {
-    const plugins = [];
+    const plugins = [
+        new webpack.DefinePlugin({
+            "PRODUCTION": true
+        }),
+    ];
     if (env.report) {
         plugins.push(new BundleAnalyzerPlugin({
             analyzerMode: "static",

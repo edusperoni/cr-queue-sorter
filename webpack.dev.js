@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 const WebpackUserscript = require('webpack-userscript');
@@ -40,9 +39,6 @@ function getConf(env, name) {
   return merge(common(env), {
     name,
     watch: true,
-    externals: [
-      nodeExternals({}),
-    ],
     mode: 'development',
     plugins: [
       ...plugins
