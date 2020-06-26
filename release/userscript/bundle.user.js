@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        CR Queue Sorter
-// @version     1.0.1
+// @version     1.0.2
 // @match       https://www.crunchyroll.com/home/queue
 // @grant       unsafeWindow
 // @downloadURL https://github.com/edusperoni/cr-queue-sorter/raw/master/release/userscript/bundle.user.js
@@ -209,13 +209,17 @@ case"current":r.classList.add(e.PREFIX+"-current")
 break
 case"hold":r.classList.add(e.PREFIX+"-hold")}var l=function(e,n,r){t.createButton(c,e,n,a,r)}
 l(e.PREFIX+"-new-episode","New Episode!"),l(e.PREFIX+"-to-top","Top",(function(e,t){return e.order=--t.topItem})),l(e.PREFIX+"-on-current","Current",(function(e){return e.type="current"})),l(e.PREFIX+"-on-hold","Hold",(function(e){return e.type="hold"})),l(e.PREFIX+"-on-backlock","Backlog",(function(e){return e.type="backlog"}))}})),r.sort((function(t,r){var o,u,c=n.shows,a=i.getValidShowConfig(c[t.attributes.getNamedItem("series_id").value]),s=i.getValidShowConfig(c[r.attributes.getNamedItem("series_id").value]),l=t.classList.contains("watched"),f=r.classList.contains("watched")
-if(a&&s){var h=e.typeOrder.indexOf(a.type)-e.typeOrder.indexOf(s.type)
-if(h)return h
-var p=a.order-s.order
-return p||(l!==f?l?1:-1:0)}if(a)return-1
+if(a&&s){var h=a.type
+"hold"!==a.type||l||(h="current")
+var p=s.type
+"hold"!==s.type||f||(p="current")
+var d=e.typeOrder.indexOf(h)-e.typeOrder.indexOf(p)
+if(d)return d
+var g=a.order-s.order
+return g||(l!==f?l?1:-1:0)}if(a)return-1
 if(s)return 1
-var d=(null===(o=t.attributes.getNamedItem("media_id"))||void 0===o?void 0:o.value)||0
-return+((null===(u=r.attributes.getNamedItem("media_id"))||void 0===u?void 0:u.value)||0)-+d})),r.forEach((function(e){return t.queueLocation.removeChild(e)})),r.forEach((function(e){return t.queueLocation.appendChild(e)})),t.domChangeHelper.stopChangingDom()}))},e.prototype.init=function(){var t=this
+var v=(null===(o=t.attributes.getNamedItem("media_id"))||void 0===o?void 0:o.value)||0
+return+((null===(u=r.attributes.getNamedItem("media_id"))||void 0===u?void 0:u.value)||0)-+v})),r.forEach((function(e){return t.queueLocation.removeChild(e)})),r.forEach((function(e){return t.queueLocation.appendChild(e)})),t.domChangeHelper.stopChangingDom()}))},e.prototype.init=function(){var t=this
 c.appendStyle("\n        ."+e.PREFIX+"-hold { opacity: 0.5;}\n        ."+e.PREFIX+"-hold.unwatched { opacity: 1; }\n        .queue-sortable .queue-item."+e.PREFIX+"-backlog { background-color: lightgray; }\n        ."+e.PREFIX+"-hold.unwatched ."+e.PREFIX+"-ctn > ."+e.PREFIX+"-new-episode { display: block; }\n        ."+e.PREFIX+"-ctn > ."+e.PREFIX+"-new-episode { display: none; padding: 5px; color: white; background-color: #dc3545; }\n        ."+e.PREFIX+"-ctn > a {display: block;}\n        "),this.queueLocation=document.getElementById("sortable"),this.queueLocation&&(this.mutationObserver=new u.Observer(this.queueLocation),this.domChangeHelper.onStartChange=function(){t.mutationObserver.disconnect()},this.domChangeHelper.onEndChange=function(){t.mutationObserver.connect()},this.mutationObserver.registerCallback((function(e,n){for(var r=0,o=e;r<o.length;r++){var i=o[r]
 "childList"===i.type?t.scheduleSort():i.type}})),this.mutationObserver.connect(),this.scheduleSort())},e.prototype.getQueueItems=function(){var e=Array.from(this.queueLocation.children)
 return e=e.filter((function(e){return!!e.attributes.getNamedItem("series_id")}))},e.prototype.createButton=function(e,t,n,r,o){var u=this,c=e.querySelector("."+t)
