@@ -98,14 +98,26 @@ export class QueueSorter {
                 const aWatched = a.classList.contains("watched");
                 const bWatched = b.classList.contains("watched");
                 if (aConfig && bConfig) {
-                    const typePrecedence = QueueSorter.typeOrder.indexOf(aConfig.type) - QueueSorter.typeOrder.indexOf(bConfig.type);
+                    // treat new episodes from hold as current
+                    let aType = aConfig.type;
+                    if (aConfig.type === "hold" && !aWatched) {
+                        aType = "current";
+                    }
+                    let bType = bConfig.type;
+                    if (bConfig.type === "hold" && !bWatched) {
+                        bType = "current";
+                    }
+                    // first order by type (current/hold/backlog)
+                    const typePrecedence = QueueSorter.typeOrder.indexOf(aType) - QueueSorter.typeOrder.indexOf(bType);
                     if (typePrecedence) {
                         return typePrecedence;
                     }
+                    // then by user defined order
                     const orderPrecendence = aConfig.order - bConfig.order;
                     if (orderPrecendence) {
                         return orderPrecendence;
                     }
+                    // then by watched/unwatched
                     if (aWatched !== bWatched) {
                         return aWatched ? 1 : -1;
                     }
